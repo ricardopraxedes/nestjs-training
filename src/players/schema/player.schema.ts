@@ -9,7 +9,7 @@ export type PlayerDocument = Player & Document;
 export class Player {
   @Prop()
   name: string;
-  @Prop()
+  @Prop({ unique: true })
   email: string;
   @Prop()
   phone: string;
