@@ -1,25 +1,25 @@
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { v4 } from 'uuid';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { PlayersController } from './players.controller';
 import { PlayersService } from './players.service';
-import { v4 } from 'uuid';
 import { Player } from './schema/player.schema';
-import { getModelToken } from '@nestjs/mongoose';
 
 describe('PlayersController', () => {
   let controller: PlayersController;
   let service: PlayersService;
 
-  const createPlayerDto = new CreatePlayerDto();
+  const playerDTO = new CreatePlayerDto();
+  const expectedResult = new Player();
+  const playerId = v4();
 
-  Object.assign(createPlayerDto, {
+  Object.assign(playerDTO, {
     name: 'Ricardo',
   });
 
-  const expectedResult = new Player();
-
   Object.assign(expectedResult, {
-    ...createPlayerDto,
+    ...playerDTO,
     id: v4(),
   });
 
@@ -44,27 +44,38 @@ describe('PlayersController', () => {
   });
 
   it('create should call service with player data', async () => {
-    const expectedResult = new Player();
-
-    Object.assign(expectedResult, {
-      ...createPlayerDto,
-      id: v4(),
-    });
-
     jest.spyOn(service, 'create').mockResolvedValue(expectedResult);
 
-    const result = await controller.create(createPlayerDto);
+    const result = await controller.create(playerDTO);
 
-    expect(service.create).toBeCalledWith(createPlayerDto);
+    expect(service.create).toBeCalledWith(playerDTO);
     expect(result).toStrictEqual(expectedResult);
   });
 
-  it('findAll should return all players', async () => {
+  it('findAll should call service and return all players', async () => {
+    const expectedResult = new Player();
+
+    const playerId = v4();
+
+    Object.assign(expectedResult, {
+      ...playerDTO,
+      id: playerId,
+    });
+
     jest.spyOn(service, 'findAll').mockResolvedValue([expectedResult]);
 
     const result = await controller.findAll();
 
     expect(service.findAll).toBeCalled();
     expect(result).toStrictEqual([expectedResult]);
+  });
+
+  it('update should call service and return updated object', async () => {
+    jest.spyOn(service, 'update').mockResolvedValue(expectedResult);
+
+    const result = await controller.update(playerId, playerDTO);
+
+    expect(service.update).toBeCalledWith(playerId, playerDTO);
+    expect(result).toBe(expectedResult);
   });
 });

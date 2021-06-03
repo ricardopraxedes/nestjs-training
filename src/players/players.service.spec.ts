@@ -10,17 +10,17 @@ describe('PlayersService', () => {
   let service: PlayersService;
   let model: Model<PlayerDocument>;
 
-  const createPlayerDto = new CreatePlayerDto();
+  const playerDTO = new CreatePlayerDto();
+  const playerId = v4();
+  const expectedResult = new Player();
 
-  Object.assign(createPlayerDto, {
+  Object.assign(playerDTO, {
     name: 'Ricardo',
   });
 
-  const expectedResult = new Player();
-
   Object.assign(expectedResult, {
-    ...createPlayerDto,
-    id: v4(),
+    ...playerDTO,
+    id: playerId,
   });
 
   beforeEach(async () => {
@@ -32,6 +32,7 @@ describe('PlayersService', () => {
           useValue: {
             create: jest.fn(),
             find: jest.fn(),
+            findOneAndUpdate: jest.fn(),
           },
         },
       ],
@@ -50,20 +51,33 @@ describe('PlayersService', () => {
       .spyOn(model, 'create')
       .mockImplementation(() => expectedResult);
 
-    const result = await service.create(createPlayerDto);
+    const result = await service.create(playerDTO);
 
     expect(spy).toBeCalledTimes(1);
     expect(result).toBe(expectedResult);
   });
 
   it('find all should return all players', async () => {
+    const players = [expectedResult];
+
     const spy = jest.spyOn(model, 'find').mockReturnValue({
-      exec: jest.fn().mockResolvedValue([expectedResult]),
+      exec: jest.fn().mockResolvedValue(players),
     } as any);
 
     const result = await service.findAll();
 
     expect(spy).toBeCalledTimes(1);
-    expect(result).toStrictEqual([expectedResult]);
+    expect(result).toStrictEqual(players);
+  });
+
+  it('update should return updated object', async () => {
+    const spy = jest.spyOn(model, 'findOneAndUpdate').mockReturnValue({
+      exec: jest.fn().mockResolvedValue(expectedResult),
+    } as any);
+
+    const result = await service.update(playerId, playerDTO);
+
+    expect(spy).toBeCalledTimes(1);
+    expect(result).toBe(expectedResult);
   });
 });
