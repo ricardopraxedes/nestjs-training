@@ -70,12 +70,20 @@ describe('PlayersController', () => {
     expect(result).toStrictEqual([expectedResult]);
   });
 
-  it('update should call service and return updated object', async () => {
+  it('update should call service with id and return updated object', async () => {
     jest.spyOn(service, 'update').mockResolvedValue(expectedResult);
 
     const result = await controller.update(playerId, playerDTO);
 
     expect(service.update).toBeCalledWith(playerId, playerDTO);
     expect(result).toBe(expectedResult);
+  });
+
+  it('delete should call service with id', async () => {
+    jest.spyOn(service, 'delete').mockImplementation();
+
+    await service.delete(playerId);
+
+    expect(service.delete).toBeCalledWith(playerId);
   });
 });

@@ -33,6 +33,7 @@ describe('PlayersService', () => {
             create: jest.fn(),
             find: jest.fn(),
             findOneAndUpdate: jest.fn(),
+            deleteOne: jest.fn(),
           },
         },
       ],
@@ -79,5 +80,13 @@ describe('PlayersService', () => {
 
     expect(spy).toBeCalledTimes(1);
     expect(result).toBe(expectedResult);
+  });
+
+  it('delete should call database delete with id ', async () => {
+    const spy = jest.spyOn(model, 'deleteOne').mockImplementation();
+
+    await service.delete(playerId);
+
+    expect(spy).toBeCalledTimes(1);
   });
 });
